@@ -1,0 +1,69 @@
+cidl: "0.8"
+info:
+  name: generativeNFT
+  title: Generative NFT
+  version: 0.0.1
+  license:
+    name: Unlicense
+    identifier: Unlicense
+types:
+  GenerativeMetadata:
+    solana:
+      seeds:
+        - name: "generative"
+        - name: mint
+          type: sol:pubkey
+    fields:
+      - name: pattern
+        type: string
+        solana:
+          attributes: [ cap:255 ]
+      - name: mint
+        type: sol:pubkey
+      - name: assoc_account
+        type: rs:option<sol:pubkey>
+methods:
+  - name: mint
+    uses:
+      - csl_spl_token.initialize_mint2
+      - csl_spl_assoc_token.create
+      - csl_spl_token.mint_to
+      - csl_spl_token.set_authority
+    inputs:
+      - name: mint
+        type: csl_spl_token.Mint
+        solana:
+          attributes: [ init ]
+      - name: generative
+        type: GenerativeMetadata
+        solana:
+          attributes: [ init ]
+          seeds:
+            mint: mint
+      - name: pattern
+        type: string
+  - name: transfer
+    uses:
+      - csl_spl_assoc_token.create
+      - csl_spl_token.transfer_checked
+    inputs:
+      - name: mint
+        type: csl_spl_token.Mint
+      - name: generative
+        type: GenerativeMetadata
+        solana:
+          attributes: [ mut ]
+          seeds:
+            mint: mint
+  - name: burn
+    uses:
+      - csl_spl_token.burn
+    inputs:
+      - name: mint
+        type: csl_spl_token.Mint
+      - name: generative
+        type: GenerativeMetadata
+        solana:
+          attributes: [ mut ]
+          seeds:
+            mint: mint
